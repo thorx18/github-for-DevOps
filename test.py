@@ -1,15 +1,24 @@
 """
 calculator.py
 
-A clean, production-style calculator module.
-Provides basic arithmetic operations via a CLI interface.
+A production-grade CLI calculator application.
+Provides basic arithmetic operations using command-line arguments.
 """
 
-from typing import Callable
+import argparse
+import logging
+import sys
+from typing import Callable, Dict
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 class Calculator:
-    """Performs basic arithmetic operations."""
+    """Performs arithmetic operations."""
 
     @staticmethod
     def add(a: float, b: float) -> float:
@@ -39,63 +48,52 @@ class Calculator:
         return a / b
 
 
-def get_number(prompt: str) -> float:
+def parse_arguments() -> argparse.Namespace:
     """
-    Prompt the user for a floating-point number.
-
-    Args:
-        prompt: The message shown to the user.
+    Parse command-line arguments.
 
     Returns:
-        A valid float entered by the user.
+        Parsed arguments namespace.
     """
-    while True:
-        try:
-            return float(input(prompt))
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
+    parser = argparse.ArgumentParser(
+        description="A professional CLI calculator."
+    )
+
+    parser.add_argument("operation", choices=["add", "sub", "mul", "div"],
+                        help="Operation to perform")
+    parser.add_argument("num1", type=float, help="First number")
+    parser.add_argument("num2", type=float, help="Second number")
+
+    return parser.parse_args()
 
 
-def get_operation() -> Callable[[float, float], float]:
+def get_operation_map() -> Dict[str, Callable[[float, float], float]]:
     """
-    Prompt the user to choose an operation.
+    Map operation names to calculator methods.
 
     Returns:
-        A callable calculator method corresponding to the selected operation.
+        Dictionary of operation mappings.
     """
-    operations = {
-        "1": Calculator.add,
-        "2": Calculator.subtract,
-        "3": Calculator.multiply,
-        "4": Calculator.divide,
+    return {
+        "add": Calculator.add,
+        "sub": Calculator.subtract,
+        "mul": Calculator.multiply,
+        "div": Calculator.divide,
     }
-
-    print("\nChoose an operation:")
-    print("1. Add")
-    print("2. Subtract")
-    print("3. Multiply")
-    print("4. Divide")
-
-    while True:
-        choice = input("Enter choice (1-4): ")
-        if choice in operations:
-            return operations[choice]
-        print("Invalid choice. Please select 1-4.")
 
 
 def main() -> None:
-    """Run the calculator CLI application."""
-    print("=== Professional Calculator ===")
-
-    number_one = get_number("Enter first number: ")
-    number_two = get_number("Enter second number: ")
-    operation = get_operation()
+    """Application entry point."""
+    args = parse_arguments()
+    operations = get_operation_map()
 
     try:
-        result = operation(number_one, number_two)
-        print(f"\nResult: {result}")
+        operation_func = operations[args.operation]
+        result = operation_func(args.num1, args.num2)
+        logging.info("Result: %s", result)
     except ValueError as error:
-        print(f"Error: {error}")
+        logging.error("Error: %s", error)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
