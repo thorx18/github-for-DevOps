@@ -1,14 +1,15 @@
 """
 calculator.py
 
-A simple calculator module that provides basic arithmetic operations.
+A clean, production-style calculator module.
+Provides basic arithmetic operations via a CLI interface.
 """
 
-from typing import Union
+from typing import Callable
 
 
 class Calculator:
-    """A class that performs basic arithmetic operations."""
+    """Performs basic arithmetic operations."""
 
     @staticmethod
     def add(a: float, b: float) -> float:
@@ -17,7 +18,7 @@ class Calculator:
 
     @staticmethod
     def subtract(a: float, b: float) -> float:
-        """Return the difference between two numbers."""
+        """Return the difference of two numbers."""
         return a - b
 
     @staticmethod
@@ -31,27 +32,68 @@ class Calculator:
         Return the division of two numbers.
 
         Raises:
-            ValueError: If attempting to divide by zero.
+            ValueError: If division by zero is attempted.
         """
         if b == 0:
             raise ValueError("Division by zero is not allowed.")
         return a / b
 
 
+def get_number(prompt: str) -> float:
+    """
+    Prompt the user for a floating-point number.
+
+    Args:
+        prompt: The message shown to the user.
+
+    Returns:
+        A valid float entered by the user.
+    """
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+
+def get_operation() -> Callable[[float, float], float]:
+    """
+    Prompt the user to choose an operation.
+
+    Returns:
+        A callable calculator method corresponding to the selected operation.
+    """
+    operations = {
+        "1": Calculator.add,
+        "2": Calculator.subtract,
+        "3": Calculator.multiply,
+        "4": Calculator.divide,
+    }
+
+    print("\nChoose an operation:")
+    print("1. Add")
+    print("2. Subtract")
+    print("3. Multiply")
+    print("4. Divide")
+
+    while True:
+        choice = input("Enter choice (1-4): ")
+        if choice in operations:
+            return operations[choice]
+        print("Invalid choice. Please select 1-4.")
+
+
 def main() -> None:
-    """Run the calculator application."""
-    calculator = Calculator()
+    """Run the calculator CLI application."""
+    print("=== Professional Calculator ===")
+
+    number_one = get_number("Enter first number: ")
+    number_two = get_number("Enter second number: ")
+    operation = get_operation()
 
     try:
-        num1: float = float(input("Enter first number: "))
-        num2: float = float(input("Enter second number: "))
-
-        print("\nResults:")
-        print("Addition:", calculator.add(num1, num2))
-        print("Subtraction:", calculator.subtract(num1, num2))
-        print("Multiplication:", calculator.multiply(num1, num2))
-        print("Division:", calculator.divide(num1, num2))
-
+        result = operation(number_one, number_two)
+        print(f"\nResult: {result}")
     except ValueError as error:
         print(f"Error: {error}")
 
