@@ -1,1 +1,0 @@
-print("This is a test file for practicing Git commands and workflows.")
